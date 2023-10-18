@@ -1,0 +1,18 @@
+.navbar {
+    background-color: #184384; 
+    width: 100%; 
+    text-align: right; 
+    padding: 12px 0;
+}
+
+.navbar a {
+    display: inline-block;
+    color: #fff; /* Text color */
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    background-color: #005aa3; /* Darker blue on hover */
+    color: #fff; /* Text color on hover */
+}

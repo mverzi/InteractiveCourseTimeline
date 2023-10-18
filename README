@@ -1,0 +1,6 @@
+After cloning, run the following in your command line inside the project folder:
+1. npm init
+Then:
+Create a new file with the name: .env
+Inside .env, write DB_STRING = <database string here>
+We will put the DB string on discord.
