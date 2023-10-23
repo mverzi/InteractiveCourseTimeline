@@ -23,10 +23,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.render('index', {
-        
-    });
+    // Calculate progress based on completed courses (adjust as needed)
+    const completedCourses = 35; // Change this to the number of completed courses
+    const totalCourses = 100;     // Change this to the total number of required courses
+    const progress = (completedCourses / totalCourses * 100).toFixed(2);
+    
+    res.render('index', { progress });
 });
+
 
 app.get('/planAhead', (req, res) => {
     // Render the EJS template, not serve it as a static file

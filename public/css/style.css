@@ -16,3 +16,23 @@
     background-color: #005aa3; /* Darker blue on hover */
     color: #fff; /* Text color on hover */
 }
+
+.progress-bar {
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    width: 50%;
+    border: 1px solid #000;
+}
+
+.progress {
+    height: 30px;
+    background-color: #4697D0;
+    text-align: center;
+    color: #fff;
+}
+
+p{
+    text-align: center;
+}
