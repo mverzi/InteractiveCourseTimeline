@@ -33,6 +33,8 @@
     color: #fff;
 }
 
-p{
-    text-align: center;
-}
+.highlighted {
+    background-color: yellow;
+    font-weight: bold;
+  }
+  
