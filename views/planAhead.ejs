@@ -16,11 +16,11 @@
         <a href="#logout">Log Out</a>
     </div>
     
-    <input type="text" id="search-input" placeholder="Search...">
-    <button id="search-button">Search</button>
-
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search...">
+        <button id="search-button">Search</button>
+    </div>
     <p>hello my name is poop</p>
-
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -41,7 +41,7 @@
               alert("Text not found.");
             }
           }
-      
+    
           function highlightText(query) {
             const content = document.body.innerHTML;
             const highlightedContent = content.replace(
@@ -53,13 +53,6 @@
         });
       </script>
       
-
-
-
-
-
-
-
     <!-- Your server.js script should be included separately -->
     <script src="server.js"></script>
 </body>

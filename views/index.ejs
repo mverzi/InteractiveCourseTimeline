@@ -15,14 +15,14 @@
         <a href="https://paws.gsu.edu" target="_blank">PAWS</a>
         <a href="#logout">Log Out</a>
     </div>
-    
-    <h2 style="text-align: center;">Degree Completion</h2>
-
+   
     <div class="progress-bar">
-        <div class="progress" style="width: <%= progress %>%;"></div>
+        <h2 style="text-align: center;">Degree Completion</h2>
+        <div class="progress-bar-2">
+            <div class="progress" style="width: <%= progress %>%;"></div>
+        </div>
+        <p style="text-align: center;"><%= progress %>% Complete</p>
     </div>
-    <p style="text-align: center;"><%= progress %>% Complete</p>
-
 
     <!-- Your server.js script should be included separately -->
     <script src="server.js"></script>
