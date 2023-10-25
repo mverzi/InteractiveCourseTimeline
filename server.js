@@ -18,7 +18,7 @@ app.get('/', async (req, res) => {
         const client = await MongoClient.connect(dbConnectionStr, { useUnifiedTopology: true });
         const db = client.db('CourseTimeline');
         const studentsCollection = db.collection("student1");
-        const student = await studentsCollection.findOne({ _id: "1" });
+        const student = await studentsCollection.findOne({ _id: "2" });
 
         if (student) {
             const completedCourses = student.creditsCompleted;
@@ -48,6 +48,19 @@ app.get('/planAhead', (req, res) => {
     });
 });
 
+app.get('/planner', (req, res) => {
+    res.render('planner', {
+        // Pass data for this template if needed
+    });
+});
+
+app.get('/discover', (req, res) => {
+    res.render('discover', {
+        // Pass data for this template if needed
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
