@@ -21,37 +21,8 @@
         <button id="search-button">Search</button>
     </div>
     <p>hello my name is poop</p>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-          const searchInput = document.getElementById("search-input");
-          const searchButton = document.getElementById("search-button");
-      
-          searchButton.addEventListener("click", function () {
-            const searchText = searchInput.value;
-            performSearch(searchText);
-          });
-      
-          function performSearch(query) {
-            const content = document.body.innerText;
-      
-            if (content.includes(query)) {
-              highlightText(query);
-            } else {
-              alert("Text not found.");
-            }
-          }
+    <script src="public/js/search.js"></script>
     
-          function highlightText(query) {
-            const content = document.body.innerHTML;
-            const highlightedContent = content.replace(
-              new RegExp(query, "g"),
-              `<span class="highlighted">${query}</span>`
-            );
-            document.body.innerHTML = highlightedContent;
-          }
-        });
-      </script>
       
     <!-- Your server.js script should be included separately -->
     <script src="server.js"></script>

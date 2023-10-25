@@ -18,7 +18,7 @@ app.get('/', async (req, res) => {
         const client = await MongoClient.connect(dbConnectionStr, { useUnifiedTopology: true });
         const db = client.db('CourseTimeline');
         const studentsCollection = db.collection("student1");
-        const student = await studentsCollection.findOne({ _id: "2" });
+        const student = await studentsCollection.findOne({ _id: "1" });
 
         if (student) {
             const completedCourses = student.creditsCompleted;
