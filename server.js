@@ -18,18 +18,23 @@ app.get('/', async (req, res) => {
         const client = await MongoClient.connect(dbConnectionStr, { useUnifiedTopology: true });
         const db = client.db('CourseTimeline');
         const studentsCollection = db.collection("student1");
-        const student = await studentsCollection.findOne({ _id: "2" });
+        const student = await studentsCollection.findOne({ studentId: "102899" });
 
         if (student) {
-            const completedCourses = student.creditsCompleted;
             const major = student.major;
+            const coursesTaken = student.coursesTaken;
+
+            const classesCollection = db.collection("classes");
+            const courseData = await classesCollection.find({ _id: { $in: coursesTaken } }).toArray();
+
+            const totalCreditsFromCourses = courseData.reduce((total, course) => total + course.creditHours, 0);
 
             const majorsCollection = db.collection("majors");
             const majorData = await majorsCollection.findOne({ name: major });
 
             if (majorData) {
-                const totalCredits = majorData.creditsNeededForCompletion;
-                const progress = (completedCourses / totalCredits * 100).toFixed(2);
+                const creditsNeededForCompletion = majorData.creditsNeededForCompletion;
+                const progress = ((totalCreditsFromCourses / creditsNeededForCompletion) * 100).toFixed(2);
 
                 res.render('index', { progress });
             }
@@ -41,6 +46,8 @@ app.get('/', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+
 
 app.get('/planAhead', (req, res) => {
     res.render('planAhead', {
