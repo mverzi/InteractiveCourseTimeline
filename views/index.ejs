@@ -31,6 +31,13 @@
         <p style="text-align: center;"><%= progress %>% Complete</p>
     </div>
 
+    <h2 class="current-courses-heading">Current Courses</h2>
+    <ul class="current-courses-list">
+        <% for (let i = 0; i < currentCourses.length; i++) { %>
+            <li class="current-course"><%= currentCourses[i] %></li>
+        <% } %>
+    </ul>
+
     <!-- Your server.js script should be included separately -->
     <script src="server.js"></script>
 </body>

@@ -24,7 +24,29 @@
       <a href="#logout">Log Out</a>
   </div>
     
-    
+  <h1>My Plan</h1>
+<ul>
+  <li>
+    Name: <%= student.name %><br>
+    Credits: <%= student.creditsCompleted %><br>
+    Courses Taken:
+    <ul>
+      <% student.coursesTaken.forEach(course => { %>
+        <li><%= course.courseNumber %></li>
+      <% }); %>
+    </ul>
+    Courses Not Taken:
+    <ul>
+      <% if (student.coursesNotTaken) { %>
+        <% student.coursesNotTaken.forEach(course => { %>
+          <li><%= course.courseNumber %></li>
+        <% }); %>
+      <% } else { %>
+        <li>No courses not taken</li>
+      <% } %>
+    </ul>
+  </li>
+</ul>
     
       
     <!-- Your server.js script should be included separately -->
