@@ -9,7 +9,7 @@ let dbConnectionStr = process.env.DB_STRING;
 let classesCollection;
 let student1Collection;
 let db;
-let selectedStudent = '12345';
+let selectedStudent = '10289';
 
 app.set('view engine', 'ejs');
 
@@ -125,6 +125,14 @@ app.get('/planAhead', async (req, res) => {
           foreignField: '_id',
           as: 'coursesTaken'
         }
+      },
+      {
+        $lookup: {
+          from: 'classes',
+          localField: 'currentCourses',
+          foreignField: '_id',
+          as: 'currentCourses'
+        }
       }
     ]).toArray();
 
@@ -134,22 +142,31 @@ app.get('/planAhead', async (req, res) => {
     }
 
     const allClasses = await classesCollection.find().toArray();
-    const studentCoursesTakenIds = student[0].coursesTaken.map(course => course._id);
-    const coursesNotTaken = allClasses.filter(course => !studentCoursesTakenIds.includes(course._id));
+    const studentCoursesTaken = student[0].coursesTaken;
+    const studentCurrentCourses = student[0].currentCourses;
 
-    const studentWithCoursesNotTaken = {
+    const totalCreditsTaken = studentCoursesTaken.reduce((total, course) => total + course.creditHours, 0);
+    const totalCreditsCurrent = studentCurrentCourses.reduce((total, course) => total + course.creditHours, 0);
+
+    const coursesNotTaken = allClasses.filter(course => {
+      return !studentCoursesTaken.some(c => c._id.toString() === course._id.toString()) && !studentCurrentCourses.some(c => c._id.toString() === course._id.toString());
+    });
+
+    const studentWithCourses = {
       name: student[0].name,
-      creditsCompleted: student[0].creditsCompleted,
-      coursesTaken: student[0].coursesTaken,
+      creditsCompleted: totalCreditsTaken + totalCreditsCurrent,
+      coursesTaken: studentCoursesTaken,
+      currentCourses: studentCurrentCourses,
       coursesNotTaken: coursesNotTaken
     };
 
-    res.render('planAhead', { student: studentWithCoursesNotTaken });
+    res.render('planAhead', { student: studentWithCourses });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('Internal Server Error');
   }
 });
+
 
 async function fetchAllCourses() {
   try {
@@ -165,39 +182,103 @@ let currentCourses = [];
 // PLANNER PAGE
 app.get('/planner', async (req, res) => {
   try {
+    // Define coursesNotTaken as an empty array
     let coursesNotTaken = [];
+    let activeCourses = [];
 
+    // Populate coursesNotTaken based on the conditions in your GET route
     const student = await student1Collection.findOne({ studentId: selectedStudent });
+
     if (student) {
       const allClasses = await fetchAllCourses();
-      coursesNotTaken = allClasses.filter(course => !student.coursesTaken.includes(course._id));
+      coursesNotTaken = allClasses.filter(course => {
+        if (!student.coursesTaken.includes(course._id)  && !student.currentCourses.includes(course._id)) {
+          // Check if the student has all prerequisites for this course
+          const prerequisitesMet = course.prerequisites.every(prereq => {
+            const met = student.currentCourses.includes(prereq) || student.coursesTaken.includes(prereq);
+            return met;
+          });
+          return prerequisitesMet;
+        }
+        return false;
+      });
     }
 
-    res.render('planner', { coursesNotTaken, currentCourses });
+    if (student) {
+      let currentCourses = student.currentCourses;
+
+      const allClasses = await fetchAllCourses();
+
+      // Find active courses that are in currentCourses
+      activeCourses = allClasses.filter(course => currentCourses.includes(course._id));
+
+      const recommendations = [];
+      activeCourses.forEach(activeCourse => {
+        if (activeCourse.nextCourses && Array.isArray(activeCourse.nextCourses)) {
+          const activeCourseRecommendations = allClasses.filter(course =>
+            course._id !== activeCourse._id && // Exclude the active course
+            activeCourse.nextCourses.includes(course._id) &&
+            !currentCourses.includes(course._id) && // Check if the course is not in currentCourses
+            !student.coursesTaken.includes(course._id) // Check if the course is not in coursesTaken
+          );
+
+          if (activeCourseRecommendations.length > 0) {
+            recommendations.push({
+              course: activeCourse,
+              recommendedCourses: activeCourseRecommendations,
+            });
+          }
+        }
+      });
+
+      currentCourses = [];
+
+      // Render the 'planner' template and pass the data
+      res.render('planner', {
+        coursesNotTaken,
+        currentCourses,
+        activeCourses,
+        recommendations,
+      });
+    } else {
+      // Handle the case where the student is not found
+      res.status(404).send('Student not found');
+    }
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('Internal Server Error');
   }
 });
 
+
 app.post('/planner', async (req, res) => {
   try {
+    // Define coursesNotTaken as an empty array
     let coursesNotTaken = [];
-
+    //let activeCourses = [];
+    let recommendations = [];
+    
     const selectedCourseIds = req.body.selectedCourses;
-    if (!selectedCourseIds || !Array.isArray(selectedCourseIds)) {
+    if (!selectedCourseIds || (!Array.isArray(selectedCourseIds) && !Array.isArray([selectedCourseIds]))) {
       res.status(400).send('Invalid course selections');
       return;
-    }
+    }    
 
+    // Fetch all courses, including the creditHours field
     const allClasses = await fetchAllCourses();
+
+    // Calculate selectedCourses
     const selectedCourses = allClasses.filter(course => selectedCourseIds.includes(course._id));
+
+    // Retrieve the current courses from the hidden input field
     currentCourses = JSON.parse(req.body.currentCourses);
 
+    // Pass 'coursesNotTaken' and 'currentCourses' when rendering the template
     res.render('planner', {
       coursesNotTaken: coursesNotTaken,
       selectedCourses: selectedCourses,
       currentCourses: currentCourses.concat(selectedCourses),
+      recommendations: recommendations,
     });
   } catch (error) {
     console.error('Error:', error);
@@ -254,6 +335,11 @@ app.get('/discover', async (req, res) => {
   res.render('discover', { results });
 });
 
+// WHAT IF PAGE
+
+app.get('/whatIf', (req, res) => {
+  res.render('whatIf');
+});
 
 app.listen(process.env.PORT || PORT, () => {
   console.log(`Server running on port ${PORT}`);

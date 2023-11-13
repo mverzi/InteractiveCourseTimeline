@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+
+    <title>What-If</title>
+</head>
+
+<body>
+    <h1>What-If ?</h1>
+    <div class="navbar">
+        <a href="/">Home</a>
+        <div class="dropdown">
+            <a class="dropbtn" href="/planAhead">Plan Ahead</a>
+            <div class="dropdown-content">
+                <a href="/discover">Discover</a>
+                <a href="/planner">Planner</a>
+                <a href="/whatIf">What If</a>
+            </div>
+        </div>
+        <a href="https://paws.gsu.edu" target="_blank">PAWS</a>
+        <a href="#logout">Log Out</a>
+    </div>
+
+    <div class="whatif-dropdown">
+        <p>Thinking of changing your major, adding a minor, or concentration?
+            Select the major, minor, or concentration you want to add and see how
+            it changes your path.</p>
+
+        <form id="whatIfForm">
+            <label for="major">Select a major:</label>
+            <select id="major" name="major">
+                <option value="None">None</option>
+                <option value="Computer Science">Computer Science</option>
+            </select>
+
+            <br>
+
+            <label for="minor">Select a minor:</label>
+            <select id="minor" name="minor">
+                <option value="None">None</option>
+                <option value="Mathematics">Mathematics</option>
+            </select>
+
+            <br>
+
+            <label for="concentration">Select a concentration:</label>
+            <select id="concentration" name="concentration">
+                <option value="None">None</option>
+                <option value="Data Science">Data Science</option>
+                <option value="Cybersecurity">Cybersecurity</option>
+            </select>
+
+            <br>
+
+            <input type="button" value="Submit" onclick="calculateWhatIf()">
+
+        </form>
+    </div>
+
+    <div id="resultContainer"></div>
+
+
+    <script src="server.js"></script>
+
+    <script>
+    function calculateWhatIf() {
+        // Retrieve selected options
+        const selectedMajor = document.getElementById('major').value;
+        const selectedMinor = document.getElementById('minor').value;
+        const selectedConcentration = document.getElementById('concentration').value;
+
+        // Clear previous results
+        const resultContainer = document.getElementById('resultContainer');
+        resultContainer.innerHTML = '';
+
+        // Declare resultText outside of the conditional blocks
+        let resultText;
+
+        // Check selected options and set resultText accordingly
+        if (selectedMajor === 'None' && selectedMinor === 'None' && selectedConcentration === 'None') {
+            resultText = `No changes selected.`;
+        } else if (selectedMajor === 'None' && selectedMinor != 'None' && selectedConcentration != 'None') {
+            resultText = `If you choose ${selectedMinor} minor and ${selectedConcentration} concentration, your degree progression would change as follows:`;
+        } else if (selectedMajor === 'None' && selectedMinor === 'None' && selectedConcentration != 'None') {
+            resultText = `If you choose ${selectedConcentration} concentration, your degree progression would change as follows:`;
+        } else if (selectedMajor != 'None' && selectedMinor === 'None' && selectedConcentration === 'None') {
+            resultText = `If you choose ${selectedMajor} major, your degree progression would change as follows:`;
+        } else if (selectedMajor === 'None' && selectedMinor != 'None' && selectedConcentration === 'None') {
+            resultText = `If you choose ${selectedMinor} minor, your degree progression would change as follows:`;
+        } else if (selectedMajor != 'None' && selectedMinor === 'None' && selectedConcentration != 'None') {
+            resultText = `If you choose ${selectedMajor} major and ${selectedConcentration} concentration, your degree progression would change as follows:`;
+        } else if (selectedMajor != 'None' && selectedMinor != 'None' && selectedConcentration != 'None') {
+            resultText = `If you choose ${selectedMajor} major, ${selectedMinor} minor, and ${selectedConcentration} concentration, your degree progression would change as follows:`;
+        }else if (selectedMajor != 'None' && selectedMinor != 'None' && selectedConcentration === 'None') {
+            resultText = `If you choose ${selectedMajor} major and ${selectedMinor} minor, your degree progression would change as follows:`;
+        }
+
+        // Create a new div element
+        const newResult = document.createElement('div');
+        newResult.textContent = resultText;
+
+        // Append the new result to the result container
+        resultContainer.appendChild(newResult);
+    }
+</script>
+
+
+
+
+</body>
+
+</html>
