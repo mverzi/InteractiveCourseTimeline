@@ -9,10 +9,11 @@ let dbConnectionStr = process.env.DB_STRING;
 let classesCollection;
 let student1Collection;
 let db;
-let selectedStudent = '10289';
+let selectedStudent = '04212';
 
 app.set('view engine', 'ejs');
 
+// Connect to the MongoDB database at the start
 // Connect to the MongoDB database at the start
 MongoClient.connect(dbConnectionStr, { useUnifiedTopology: true })
   .then(client => {
@@ -20,6 +21,9 @@ MongoClient.connect(dbConnectionStr, { useUnifiedTopology: true })
     const database = client.db('CourseTimeline');
     classesCollection = database.collection('classes');
     student1Collection = database.collection('student1');
+    majorsCollection = database.collection('majors');
+    minorsCollection = database.collection('minors');
+    concentrationsCollection = database.collection('concentration');
     db = database;
   })
   .catch(error => {
@@ -105,7 +109,6 @@ app.get('/', async (req, res) => {
   }
 });
 
-
 // PLAN AHEAD PAGE
 app.get('/planAhead', async (req, res) => {
   try {
@@ -167,7 +170,6 @@ app.get('/planAhead', async (req, res) => {
   }
 });
 
-
 async function fetchAllCourses() {
   try {
     const allClasses = await classesCollection.find({}, { courseNumber: 1, creditHours: 1 }).toArray();
@@ -192,7 +194,7 @@ app.get('/planner', async (req, res) => {
     if (student) {
       const allClasses = await fetchAllCourses();
       coursesNotTaken = allClasses.filter(course => {
-        if (!student.coursesTaken.includes(course._id)  && !student.currentCourses.includes(course._id)) {
+        if (!student.coursesTaken.includes(course._id) && !student.currentCourses.includes(course._id)) {
           // Check if the student has all prerequisites for this course
           const prerequisitesMet = course.prerequisites.every(prereq => {
             const met = student.currentCourses.includes(prereq) || student.coursesTaken.includes(prereq);
@@ -250,19 +252,18 @@ app.get('/planner', async (req, res) => {
   }
 });
 
-
 app.post('/planner', async (req, res) => {
   try {
     // Define coursesNotTaken as an empty array
     let coursesNotTaken = [];
     //let activeCourses = [];
     let recommendations = [];
-    
+
     const selectedCourseIds = req.body.selectedCourses;
     if (!selectedCourseIds || (!Array.isArray(selectedCourseIds) && !Array.isArray([selectedCourseIds]))) {
       res.status(400).send('Invalid course selections');
       return;
-    }    
+    }
 
     // Fetch all courses, including the creditHours field
     const allClasses = await fetchAllCourses();
@@ -290,7 +291,7 @@ app.post('/planner', async (req, res) => {
 
 async function getPrerequisiteCourseNumbers(prerequisiteIds) {
   if (!prerequisiteIds || prerequisiteIds.length === 0) {
-      return [];
+    return [];
   }
 
   const prerequisiteCourses = await classesCollection.find({ _id: { $in: prerequisiteIds } }).toArray();
@@ -302,20 +303,20 @@ app.get('/api/search', async (req, res) => {
   let results = [];
 
   if (query) {
-      results = await classesCollection.find({ "courseNumber": new RegExp(query, 'i') }).toArray();
+    results = await classesCollection.find({ "courseNumber": new RegExp(query, 'i') }).toArray();
   } else {
-      results = await classesCollection.find().toArray();
+    results = await classesCollection.find().toArray();
   }
 
   // Fetch prerequisites for each course
-for (let course of results) {
-  if (course.prerequisites && course.prerequisites.length > 0) {
-    console.log("Before processing: ", course.prerequisites);
-    const prerequisitesCourses = await classesCollection.find({ _id: { $in: course.prerequisites.map(id => id) } }).toArray();
-    course.prerequisites = prerequisitesCourses.map(course => course.courseNumber);
-    console.log("After processing: ", course.prerequisites);
+  for (let course of results) {
+    if (course.prerequisites && course.prerequisites.length > 0) {
+      console.log("Before processing: ", course.prerequisites);
+      const prerequisitesCourses = await classesCollection.find({ _id: { $in: course.prerequisites.map(id => id) } }).toArray();
+      course.prerequisites = prerequisitesCourses.map(course => course.courseNumber);
+      console.log("After processing: ", course.prerequisites);
+    }
   }
-}
 
   res.json(results);
 });
@@ -324,22 +325,172 @@ app.get('/discover', async (req, res) => {
   let results = await classesCollection.find().toArray();
 
   // For each course in results
-  for(let course of results) {
-      if(course.prerequisites && course.prerequisites.length > 0) {
-          // Fetch the course numbers for each prerequisite
-          const prerequisiteCourses = await getPrerequisiteCourseNumbers(course.prerequisites);
-          course.prerequisites = prerequisiteCourses;
-      }
+  for (let course of results) {
+    if (course.prerequisites && course.prerequisites.length > 0) {
+      // Fetch the course numbers for each prerequisite
+      const prerequisiteCourses = await getPrerequisiteCourseNumbers(course.prerequisites);
+      course.prerequisites = prerequisiteCourses;
+    }
   }
 
   res.render('discover', { results });
 });
 
-// WHAT IF PAGE
+// WHAT IF PAGE CODE HERE
 
-app.get('/whatIf', (req, res) => {
-  res.render('whatIf');
+app.get('/whatIf', async (req, res) => {
+  try {
+    // Initialize the variables to empty objects
+    const selectedMajorInfo = {};
+    const selectedMinorInfo = {};
+    const selectedConcentrationInfo = {};
+
+    // Render the 'whatIf' template and pass the initialized variables
+    res.render('whatIf', {
+      selectedMajorInfo,
+      selectedMinorInfo,
+      selectedConcentrationInfo
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
+
+app.post('/whatIf', async (req, res) => {
+  try {
+    // Retrieve the selected major, minor, and concentration from the form
+    const selectedMajor = req.body.major;
+    const selectedMinor = req.body.minor;
+    const selectedConcentration = req.body.concentration;
+
+    // Initialize the variables to empty objects
+    const selectedMajorInfo = {};
+    const selectedMinorInfo = {};
+    const selectedConcentrationInfo = {};
+
+    ////////////////////////////////////////////// MAJOR ///////////////////////////////////////////
+    const majorInfo = await majorsCollection.findOne({ name: selectedMajor });
+    if (majorInfo) {
+      selectedMajorInfo.name = majorInfo.name;
+      selectedMajorInfo.creditsNeededForCompletion = majorInfo.creditsNeededForCompletion;
+      selectedMajorInfo.description = majorInfo.description;
+    }
+
+    ////////////////////////////////////////////// MINOR ///////////////////////////////////////////
+    const minorInfo = await minorsCollection.findOne({ name: selectedMinor });
+    const student = await student1Collection.findOne({ studentId: selectedStudent });
+    const completedCourseIds = student.coursesTaken;
+    let remainingMinorCourses = [];
+    let remainingMinorElectives = [];
+    if (minorInfo) {
+      selectedMinorInfo.name = minorInfo.name;
+      selectedMinorInfo.totalCredits = minorInfo.totalCredits;
+      selectedMinorInfo.description = minorInfo.description;
+
+      const requiredCourseIds = minorInfo.requiredCourses;
+      const requiredCourses = await Promise.all(
+        requiredCourseIds.map(async (courseId) => {
+          const course = await classesCollection.findOne({ _id: courseId });
+          return course ? { _id: course._id.toString(), number: course.courseNumber, title: course.courseTitle } : null;
+        })
+      );
+
+      selectedMinorInfo.requiredCourses = requiredCourses.filter(Boolean);
+
+      const electiveIds = minorInfo.electives;
+      const electives = await Promise.all(
+        electiveIds.map(async (electiveId) => {
+          const elective = await classesCollection.findOne({ _id: electiveId });
+          return elective ? { _id: elective._id.toString(), number: elective.courseNumber, title: elective.courseTitle } : null;
+        })
+      );
+
+      selectedMinorInfo.electives = electives.filter(Boolean);
+
+      const completedRequiredCourses = selectedMinorInfo.requiredCourses.filter(course =>
+        completedCourseIds.includes(course._id)
+      );
+      const completedElectives = selectedMinorInfo.electives.filter(course =>
+        completedCourseIds.includes(course._id)
+      );
+      selectedMinorInfo.completedCourses = {
+        requiredCourses: completedRequiredCourses,
+        electives: completedElectives
+      };
+
+      remainingMinorCourses = selectedMinorInfo.requiredCourses.filter(course =>
+        !completedCourseIds.includes(course._id)
+      );
+      selectedMinorInfo.remainingCourses = remainingMinorCourses;
+      // console.log("-----remaining main-----",remainingMinorCourses);
+
+      remainingMinorElectives = selectedMinorInfo.electives.filter(elective =>
+        !completedCourseIds.includes(elective._id)
+      );
+      selectedMinorInfo.remainingElectives = remainingMinorElectives;
+      // console.log("-----remaining electives-----",remainingMinorElectives);
+    }
+
+    ////////////////////////////////////////////// CONCENTRATION ///////////////////////////////////////////
+    const concentrationInfo = await concentrationsCollection.findOne({ name: selectedConcentration });
+    if (concentrationInfo) {
+      selectedConcentrationInfo.name = concentrationInfo.name;
+      selectedConcentrationInfo.description = concentrationInfo.description;
+      selectedConcentrationInfo.totalCredits = concentrationInfo.totalCredits;
+
+      const requiredCourseId = concentrationInfo.requiredCourse;
+      const requiredCourse = await classesCollection.findOne({ _id: requiredCourseId });
+
+      const electiveIds = concentrationInfo.electives;
+      const electives = await Promise.all(
+        electiveIds.map(async (electiveId) => {
+          const elective = await classesCollection.findOne({ _id: electiveId });
+          return elective ? { _id: elective._id.toString(), number: elective.courseNumber, title: elective.courseTitle } : null;
+        })
+      );
+
+      selectedConcentrationInfo.requiredCourse = requiredCourse ? { _id: requiredCourse._id.toString(), number: requiredCourse.courseNumber, title: requiredCourse.courseTitle } : null;
+      selectedConcentrationInfo.electives = electives.filter(Boolean);
+
+      remainingConcentrationElectives = selectedConcentrationInfo.electives.filter(elective =>
+        !completedCourseIds.includes(elective._id)
+      );
+      selectedConcentrationInfo.remainingElectives = remainingConcentrationElectives;
+
+      let completedRequiredCourses = [];
+      if (completedCourseIds.includes(selectedConcentrationInfo.requiredCourse._id)) {
+        completedRequiredCourses.push(selectedConcentrationInfo.requiredCourse);
+      }
+      const completedElectives = electives.filter(course =>
+        completedCourseIds.includes(course._id)
+      );
+      selectedConcentrationInfo.completedCourses = {
+        requiredCourses: completedRequiredCourses,
+        electives: completedElectives
+      };
+
+      if (completedCourseIds.includes(selectedConcentrationInfo.requiredCourse._id)) {
+        selectedConcentrationInfo.remainingCourse = false;
+      }
+      else{
+        selectedConcentrationInfo.remainingCourse = true;
+      }
+
+    }
+
+    // Render the 'whatIf' template and pass the fetched information
+    res.render('whatIf', {
+      selectedMajorInfo,
+      selectedMinorInfo,
+      selectedConcentrationInfo
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 app.listen(process.env.PORT || PORT, () => {
   console.log(`Server running on port ${PORT}`);
