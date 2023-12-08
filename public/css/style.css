@@ -23,6 +23,7 @@ body {
     /* Text color */
     padding: 14px 16px;
     text-decoration: none;
+    font-size: 18px;
 }
 
 .navbar a:hover {
@@ -35,6 +36,14 @@ body {
     padding: 16px;
     font-size: 16px;
     border: none;
+    background-image: url('/css/arrow.png');
+    background-size: 11px;
+    /* Adjust the size as needed */
+    background-repeat: no-repeat;
+    background-position: calc(100% - 2px) center;
+    /* Adjust the position as needed */
+    padding-right: 40px;
+    /* Add more padding to the right for the arrow */
 }
 
 .dropdown {
@@ -66,52 +75,197 @@ body {
     display: block;
 }
 
-/* GISSELLE: PROGRESS BAR */
-.progress-bar {
-    background-color: #FFFFFF;
-    margin: auto;
+.title {
+    display: flex;
+    /* Use flexbox */
+    align-items: center;
+    /* Center vertically */
 }
 
-.progress-bar-2 {
-    margin-top: 20px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 10px;
-    width: 50%;
-    border: 1px solid #000;
+.logo {
+    display: inline-block;
+    /* Display the logo as inline-block */
+    vertical-align: middle;
+    /* Align the logo vertically with the text */
+}
+
+.vertical-line {
+    border-left: 1px solid #CED5DB;
+    /* Vertical line style */
+    height: 50px;
+    /* Adjust height as needed */
+    margin: 0 10px;
+    /* Adjust margin as needed */
+}
+
+/* GISSELLE: PROGRESS BAR - HOME PAGE */
+.content-area {
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+}
+
+.section-title {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.welcome-message h2 {
+    font-size: 22px;
+    color: #4697D0;
+    margin-bottom: 20px;
+}
+
+.progress-section {
+    margin-bottom: 30px;
+}
+
+.progress-bar {
+    background-color: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+    height: 20px;
+    width: 100%;
 }
 
 .progress {
-    height: 30px;
     background-color: #4697D0;
+    height: 100%;
+}
+
+.progress-text {
     text-align: center;
-    color: #fff;
+    font-size: 16px;
+    color: #666;
 }
 
-/* MAGGIE AND SOLANLLY */
-.container {
-    max-width: 800px;
-    margin: 0 auto;
+.current-courses-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.current-course {
     background-color: #fff;
-    padding: 20px;
+    padding: 15px;
+    margin-bottom: 10px;
     border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    font-family: 'Arial', sans-serif;
-    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-h1 {
+.current-course::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 0;
+    background-color: #4697D0;
+    transition: width 0.3s ease;
+}
+
+.current-course:hover::after {
+    width: 100%;
+}
+
+.current-course:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+header,
+.content {
+    flex: 0 0 auto;
+}
+
+.content {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    justify-content: space-between;
+}
+
+.content-area {
+    width: 70%;
+    /* Adjust this width as needed */
+}
+
+.panel {
+    width: 25%;
+    /* Adjust this width as needed */
+    background-color: #f5f5f5;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Additional styling for the panel content */
+.panel h2 {
+    margin-top: 0;
+}
+
+/* MAGGIE AND SOLANLLY - PLANNER PAGE */
+.my-plan {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+}
+
+.plan-title {
+    color: #333;
     font-size: 28px;
+    margin-bottom: 20px;
 }
 
 .student-info {
-    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.info-block {
+    background-color: #e9ecef;
     padding: 10px;
-    background-color: #f9f9f9;
     border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-family: 'Arial', sans-serif;
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.info-title {
+    font-weight: bold;
+    color: #495057;
+    font-size: 18px;
+}
+
+.info-data {
+    font-size: 18px;
+    color: #212529;
+}
+
+.courses-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.courses-taken,
+.courses-not-taken {
+    flex-basis: 48%;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.courses-taken h2,
+.courses-not-taken h2 {
+    color: #000;
+    font-size: 18px;
+    margin-bottom: 10px;
 }
 
 ul {
@@ -119,33 +273,9 @@ ul {
     padding: 0;
 }
 
-li {
-    margin: 10px 0;
-    padding: 10px;
-    background-color: #e0e0e0;
-    border-radius: 5px;
-    font-family: 'Arial', sans-serif;
-}
-
-.button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: #fff;
-    text-decoration: none;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-family: 'Helvetica', sans-serif;
-}
-
-.button:hover {
-    background-color: #0056b3;
-}
-
-.hide {
-    display: none;
+ul li {
+    padding: 5px 0;
+    border-bottom: 1px solid #f1f1f1;
 }
 
 /* ADRIAN */
@@ -177,7 +307,7 @@ li ul li {
     border-bottom: none;
 }
 
-/* GISSELLE: WHAT-IF PAGE  */
+/* GISSELLE AND SOLANLY: WHAT-IF PAGE  */
 
 .whatif-dropdown {
     display: flex;
@@ -201,4 +331,167 @@ li ul li {
 
 .whatif-dropdown input[type="submit"] {
     margin-top: 10px;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+#selectionResults h2 {
+    background-color: #004489;
+    /* Dark blue */
+    color: white;
+    padding: 10px;
+    border-radius: 3px;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.selectionContainer {
+    border: 1px solid #cccccc;
+    margin-top: 10px;
+    padding: 20px;
+    border-radius: 3px;
+    background-color: #f8f8f8;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-family: 'Roboto', sans-serif;
+}
+
+input[type="submit"] {
+    background-color: #004489;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #4697D0;
+}
+
+.selectionContainer .courses ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 2px;
+    margin: 0;
+    list-style: none;
+}
+
+.selectionContainer .courses ul li {
+    width: calc(25% - 20px);
+    box-sizing: border-box;
+}
+
+.selectionContainer .courses h3 {
+    display: block;
+    margin-bottom: 10px;
+    color: #4697D0;
+
+}
+
+.selectionContainer h3 {
+    color: #4697D0;
+
+}
+
+/* SOLANLY PLANNER PAGE EXTRA */
+.recommended-courses-section,
+.course-selection-section,
+.your-plan-section {
+    background-color: #f5f5f5;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #444;
+}
+
+.submit-button {
+    background-color: #4697D0;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.submit-button:hover {
+    background-color: #367ba7;
+}
+
+.hide {
+    display: none;
+}
+
+/* PLAN OF STUDY */
+.plan-of-study {
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+}
+
+.heading {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.description {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.course-progression .semester {
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.semester-title {
+    color: #4697D0;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.course-list {
+    list-style-type: none;
+}
+
+.course-item {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+}
+
+.course-item:last-child {
+    border-bottom: none;
 }

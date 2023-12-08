@@ -6,68 +6,36 @@
     <meta http-equiv="X-UA-Compatible" content="IE-edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
-
-    <title>Home</title>
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-
-        #selectionResults h2 {
-            background-color: #003366;
-            /* Dark blue */
-            color: white;
-            padding: 10px;
-            border-radius: 3px;
-            text-align: center;
-            margin-bottom: 0;
-        }
-
-        .selectionContainer {
-            border: 1px solid #cccccc;
-            margin-top: 10px;
-            padding: 20px;
-            border-radius: 3px;
-            background-color: #f8f8f8;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            font-family: 'Roboto', sans-serif;
-        }
-
-        input[type="submit"] {
-            background-color: #0056b3;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #003366;
-        }
-    </style>
-
+    <link rel="icon" href="/css/favicon.ico" type="image/x-icon" sizes="16x16">
+    <title>What If</title>
 </head>
 
 <body>
-    <h1>What-If ?</h1>
-    <div class="navbar">
-        <a href="/">Home</a>
-        <div class="dropdown">
-            <a class="dropbtn" href="/planAhead">Plan Ahead</a>
-            <div class="dropdown-content">
-                <a href="/discover">Discover</a>
-                <a href="/planner">Planner</a>
-                <a href="/whatIf">What If</a>
-            </div>
+    <header>
+        <div class="title">
+            <img src="/css/inverse.png" alt="logo" width="90" height="50" class="logo">
+            <div class="vertical-line"></div>
+            <h1>What If</h1>
         </div>
-        <a href="https://paws.gsu.edu" target="_blank">PAWS</a>
-        <a href="#logout">Log Out</a>
-    </div>
+        <div class="navbar">
+            <a href="/">Home</a>
+            <a href="/discover">Discover</a>
+            <a href="/whatIf">What If</a>
+            <div class="dropdown">
+                <a class="dropbtn" href="/planAhead">Plan Ahead</a>
+                <div class="dropdown-content">
+                    <a href="/planner">Whats Next</a>
+                    <a href="/planOfStudy">Guided Schedule</a>
+                </div>
+            </div>
+            <a href="https://paws.gsu.edu" target="_blank">PAWS</a>
+        </div>
+    </header>
 
     <div class="whatif-dropdown">
-        <p>Thinking of changing your major, adding a minor, or concentration?
-            Select the major, minor, or concentration you want to add and see how
-            it changes your path.</p>
+        <p>Contemplating a shift in your major, considering a minor addition, or focusing on a specific concentration?
+            Choose the major, minor, or concentration you wish to pursue. Review the courses you've completed and
+            identify the ones that remain for completion.</p>
 
         <form action="/whatIf" method="POST">
             <label for="major">Select a major:</label>
@@ -101,33 +69,40 @@
 
         <div id="selectionResults">
             <% if (Object.keys(selectedMajorInfo).length> 0) { %>
-                <div class="selectionContainer"></div>
-                <h2>Selected Major Information:</h2>
-                <h3>Name: <%= selectedMajorInfo.name %>
-                </h3>
-                <h3>Credits Needed for Completion: </h3>
-                <p>
-                    <%= selectedMajorInfo.creditsNeededForCompletion %>
-                </p>
-                <h3>Description: </h3>
-                <p>
-                    <%= selectedMajorInfo.description %>
-                </p>
-                <% } %>
+                <div class="selectionContainer">
+                    <h2>Selected Major Information:</h2>
+                    <h3>Name: <%= selectedMajorInfo.name %>
+                    </h3>
+                    <h3>Credits Needed for Completion: </h3>
+                    <p>
+                        <%= selectedMajorInfo.creditsNeededForCompletion %>
+                    </p>
+                    <h3>Description: </h3>
+                    <p>
+                        <%= selectedMajorInfo.description %>
+                    </p>
+                    <% } %>
+                </div>
 
-                    <% if (Object.keys(selectedMinorInfo).length> 0) { %>
-                        <div class="selectionContainer">
-                            <h2>Selected Minor Information:</h2>
-                            <h3>Name: <%= selectedMinorInfo.name %>
-                            </h3>
-                            <h3>Total Credits:</h3>
-                            <p>
+                <% if (Object.keys(selectedMinorInfo).length> 0) { %>
+                    <div class="selectionContainer">
+                        <h2>Selected Minor Information:</h2>
+                        <h3>Name: <%= selectedMinorInfo.name %>
+                        </h3>
+                        <h3>Total Credits:</h3>
+                        <ul>
+                            <li>
                                 <%= selectedMinorInfo.totalCredits %>
-                            </p>
-                            <h3>Description:</h3>
-                            <p>
+                            </li>
+                        </ul>
+                        <h3>Description:</h3>
+                        <ul>
+                            <li>
                                 <%= selectedMinorInfo.description %>
-                            </p>
+                            </li>
+                        </ul>
+
+                        <div class="courses">
                             <h3>Required Courses:</h3>
                             <ul>
                                 <% selectedMinorInfo.requiredCourses.forEach(course=> { %>
@@ -136,6 +111,9 @@
                                     </li>
                                     <% }); %>
                             </ul>
+                        </div>
+
+                        <div class="courses">
                             <h3>Electives:</h3>
                             <ul>
                                 <% selectedMinorInfo.electives.forEach(elective=> { %>
@@ -144,11 +122,14 @@
                                     </li>
                                     <% }); %>
                             </ul>
+                        </div>
+
+                        <div class="courses">
+                            <h3>Completed Required Course(s):</h3>
                             <ul>
                                 <% if (selectedMinorInfo && selectedMinorInfo.completedCourses) { %>
                                     <% if (selectedMinorInfo.completedCourses.requiredCourses &&
                                         selectedMinorInfo.completedCourses.requiredCourses.length> 0) { %>
-                                        <h3>Completed Required Course(s):</h3>
                                         <ul>
                                             <% selectedMinorInfo.completedCourses.requiredCourses.forEach(course=> { %>
                                                 <li>
@@ -157,31 +138,39 @@
                                                 <% }); %>
                                         </ul>
                                         <% } else { %>
-                                            <p>No completed required courses found.</p>
+                                            <ul>
+                                                <li>No completed required courses found.</li>
+                                            </ul>
                                             <% } %>
-
-                                                <% if (selectedMinorInfo.completedCourses.electives &&
-                                                    selectedMinorInfo.completedCourses.electives.length> 0) { %>
-                                                    <h3>Completed Elective(s):</h3>
-                                                    <ul>
-                                                        <% selectedMinorInfo.completedCourses.electives.forEach(course=>
-                                                            { %>
-                                                            <li>
-                                                                <%= course.number %> - <%= course.title %>
-                                                            </li>
-                                                            <% }); %>
-                                                    </ul>
-                                                    <% } else { %>
-                                                        <p>No completed electives found.</p>
-                                                        <% } %>
-                                                            <% } else { %>
-                                                                <p>No completed courses found.</p>
-                                                                <% } %>
-
-
                             </ul>
-                            <h3>Required Remaining Course(s):</h3>
+                        </div>
 
+                        <div class="courses">
+                            <h3>Completed Elective(s):</h3>
+                            <% if (selectedMinorInfo.completedCourses.electives &&
+                                selectedMinorInfo.completedCourses.electives.length> 0) { %>
+                                <ul>
+                                    <% selectedMinorInfo.completedCourses.electives.forEach(course=>
+                                        { %>
+                                        <li>
+                                            <%= course.number %> - <%= course.title %>
+                                        </li>
+                                        <% }); %>
+                                </ul>
+                                <% } else { %>
+                                    <ul>
+                                        <li>No completed electives found.</li>
+                                    </ul>
+                                    <% } %>
+                                        <% } else { %>
+                                            <ul>
+                                                <li>No completed courses found.</li>
+                                            </ul>
+                                            <% } %>
+                        </div>
+
+                        <div class="courses">
+                            <h3>Required Remaining Course(s):</h3>
                             <% if (selectedMinorInfo && selectedMinorInfo.remainingCourses &&
                                 Array.isArray(selectedMinorInfo.remainingCourses)) { %>
                                 <ul>
@@ -194,122 +183,148 @@
                                 <% } else { %>
                                     <p>No remaining courses found.</p>
                                     <% } %>
-
-                                        </ul>
-                                        <h3>Remaining Elective(s):</h3>
-
-                                        <% if (selectedMinorInfo && selectedMinorInfo.remainingElectives &&
-                                            Array.isArray(selectedMinorInfo.remainingElectives)) { %>
-                                            <ul>
-                                                <% selectedMinorInfo.remainingElectives.forEach(elective=> { %>
-                                                    <li>
-                                                        <%= elective.number %> - <%= elective.title %>
-                                                    </li>
-                                                    <% }); %>
-                                            </ul>
-                                            <% } else { %>
-                                                <p>No remaining electives found.</p>
-                                                <% } %>
-
-                                                    </ul>
                         </div>
-                        <% } %>
 
-                            <% if (Object.keys(selectedConcentrationInfo).length> 0) { %>
-                                <div class="selectionContainer">
-                                    <h2>Selected Concentration Information:</h2>
-                                    <h3>Name: <%= selectedConcentrationInfo.name %>
-                                    </h3>
-                                    <h3>Description: </h3>
-                                    <p>
+                        <div class="courses">
+                            <h3>Remaining Elective(s):</h3>
+                            <% if (selectedMinorInfo && selectedMinorInfo.remainingElectives &&
+                                Array.isArray(selectedMinorInfo.remainingElectives)) { %>
+                                <ul>
+                                    <% selectedMinorInfo.remainingElectives.forEach(elective=>
+                                        { %>
+                                        <li>
+                                            <%= elective.number %> - <%= elective.title %>
+                                        </li>
+                                        <% }); %>
+                                </ul>
+                                <% } else { %>
+                                    <p>No remaining electives found.</p>
+                                    <% } %>
+                        </div>
+
+                    </div>
+                    <% } %>
+
+                        <% if (Object.keys(selectedConcentrationInfo).length> 0) { %>
+                            <div class="selectionContainer">
+                                <h2>Selected Concentration Information:</h2>
+                                <h3>Name: <%= selectedConcentrationInfo.name %>
+                                </h3>
+                                <h3>Description: </h3>
+                                <ul>
+                                    <li>
                                         <%= selectedConcentrationInfo.description %>
-                                    </p>
-                                    <h3>Total Credits: </h3>
-                                    <p>
+                                    </li>
+                                </ul>
+                                <h3>Total Credits: </h3>
+                                <ul>
+                                    <li>
                                         <%= selectedConcentrationInfo.totalCredits %>
-                                    </p>
+                                    </li>
+                                </ul>
+                                <div class="courses">
                                     <h3>Required Course:</h3>
                                     <% if (selectedConcentrationInfo.requiredCourse) { %>
-                                        <p>
-                                            <%= selectedConcentrationInfo.requiredCourse.number %> - <%=
-                                                    selectedConcentrationInfo.requiredCourse.title %>
-                                        </p>
+                                        <ul>
+                                            <li>
+                                                <%= selectedConcentrationInfo.requiredCourse.number %> - <%=
+                                                        selectedConcentrationInfo.requiredCourse.title %>
+                                            </li>
+                                        </ul>
                                         <% } else { %>
-                                            <p>No required course specified for this concentration.</p>
+                                            <ul>
+                                                <li>No required course specified for this concentration.</li>
+                                            </ul>
                                             <% } %>
-                                                <h3>Elective(s):</h3>
-                                                <ul>
-                                                    <% if (selectedConcentrationInfo.electives &&
-                                                        selectedConcentrationInfo.electives.length> 0) { %>
-                                                        <% selectedConcentrationInfo.electives.forEach(elective=> { %>
-                                                            <li>
-                                                                <%= elective.number %> - <%= elective.title %>
-                                                            </li>
-                                                            <% }); %>
-                                                                <% } else { %>
-                                                                    <li>No electives found.</li>
-                                                                    <% } %>
-                                                </ul>
-                                                <h3>Completed Course(s):</h3>
-                                                <% if (selectedConcentrationInfo.completedCourses &&
-                                                    ((selectedConcentrationInfo.completedCourses.requiredCourses &&
-                                                    selectedConcentrationInfo.completedCourses.requiredCourses.length>
-                                                    0) ||
-                                                    (selectedConcentrationInfo.completedCourses.electives &&
-                                                    selectedConcentrationInfo.completedCourses.electives.length > 0))) {
-                                                    %>
-                                                    <ul>
-                                                        <%
-                                                            selectedConcentrationInfo.completedCourses.requiredCourses.forEach(course=>
-                                                            { %>
-                                                            <li>
-                                                                <%= course.number %> - <%= course.title %>
-                                                            </li>
-                                                            <% }); %>
-                                                                <h3>Completed Elective(s): </h3>
-                                                                <%
-                                                                    selectedConcentrationInfo.completedCourses.electives.forEach(elective=>
-                                                                    { %>
-                                                                    <li>
-                                                                        <%= elective.number %> - <%= elective.title %>
-                                                                    </li>
-                                                                    <% }); %>
-                                                    </ul>
-                                                    <% } else { %>
-                                                        <p>No courses have been completed for this concentration.</p>
-                                                        <% } %>
 
-                                                            <h3>Required Remaining Course(s):</h3>
-                                                            <% if (selectedConcentrationInfo.remainingCourse) { %>
-                                                                <p>
-                                                                    <%= selectedConcentrationInfo.requiredCourse.number
-                                                                        %> - <%=
-                                                                            selectedConcentrationInfo.requiredCourse.title
-                                                                            %>
-                                                                </p>
-                                                                <% } else { %>
-                                                                    <p>All required courses completed.</p>
-                                                                    <% } %>
-
-                                                                        <h3>Remaining Elective(s):</h3>
-                                                                        <% if
-                                                                            (selectedConcentrationInfo.remainingElectives
-                                                                            &&
-                                                                            selectedConcentrationInfo.remainingElectives.length>
-                                                                            0) { %>
-                                                                            <ul>
-                                                                                <%
-                                                                                    selectedConcentrationInfo.remainingElectives.forEach(elective=>
-                                                                                    { %>
-                                                                                    <li>
-                                                                                        <%= elective.number %> - <%=
-                                                                                                elective.title %>
-                                                                                    </li>
-                                                                                    <% }); %>
-                                                                            </ul>
-                                                                            <% } %>
                                 </div>
-                                <% } %>
+
+                                <div class="courses">
+                                    <h3>Elective(s):</h3>
+                                    <ul>
+                                        <% if (selectedConcentrationInfo.electives &&
+                                            selectedConcentrationInfo.electives.length> 0) { %>
+                                            <% selectedConcentrationInfo.electives.forEach(elective=> { %>
+                                                <li>
+                                                    <%= elective.number %> - <%= elective.title %>
+                                                </li>
+                                                <% }); %>
+                                                    <% } else { %>
+                                                        <li>No electives found.</li>
+                                                        <% } %>
+                                    </ul>
+                                </div>
+
+                                <div class="courses">
+                                    <h3>Completed Course(s):</h3>
+                                    <% if (selectedConcentrationInfo.completedCourses &&
+                                        ((selectedConcentrationInfo.completedCourses.requiredCourses &&
+                                        selectedConcentrationInfo.completedCourses.requiredCourses.length>
+                                        0) ||
+                                        (selectedConcentrationInfo.completedCourses.electives &&
+                                        selectedConcentrationInfo.completedCourses.electives.length > 0))) {
+                                        %>
+                                        <ul>
+                                            <%
+                                                selectedConcentrationInfo.completedCourses.requiredCourses.forEach(course=>
+                                                { %>
+                                                <li>
+                                                    <%= course.number %> - <%= course.title %>
+                                                </li>
+                                                <% }); %>
+                                        </ul>
+                                </div>
+
+                                <div class="courses">
+                                    <h3>Completed Elective(s): </h3>
+                                    <ul>
+                                        <% selectedConcentrationInfo.completedCourses.electives.forEach(elective=>
+                                            { %>
+                                            <li>
+                                                <%= elective.number %> - <%= elective.title %>
+                                            </li>
+                                            <% }); %>
+
+                                                <% } else { %>
+                                                    <ul>
+                                                        <li>No courses have been completed for this concentration.</li>
+                                                    </ul>
+                                                    <% } %>
+                                    </ul>
+                                </div>
+
+                                <div class="courses">
+                                    <h3>Required Remaining Course(s):</h3>
+                                    <% if (selectedConcentrationInfo.remainingCourse) { %>
+                                        <ul>
+                                            <li>
+                                                <%= selectedConcentrationInfo.requiredCourse.number %> - <%=
+                                                        selectedConcentrationInfo.requiredCourse.title %>
+                                            </li>
+                                        </ul>
+                                        <% } else { %>
+                                            <p>All required courses completed.</p>
+                                            <% } %>
+                                </div>
+
+                                <div class="courses">
+                                    <h3>Remaining Elective(s):</h3>
+                                    <% if (selectedConcentrationInfo.remainingElectives &&
+                                        selectedConcentrationInfo.remainingElectives.length>
+                                        0) { %>
+                                        <ul>
+                                            <% selectedConcentrationInfo.remainingElectives.forEach(elective=>
+                                                { %>
+                                                <li>
+                                                    <%= elective.number %> - <%= elective.title %>
+                                                </li>
+                                                <% }); %>
+                                        </ul>
+                                        <% } %>
+                                </div>
+
+                            </div>
+                            <% } %>
 
         </div>
     </div>

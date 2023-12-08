@@ -1,66 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="/css/style.css">
-   
-    <title>Home</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <link rel="icon" href="/css/favicon.ico" type="image/x-icon" sizes="16x16">
+  <title>Planner</title>
 </head>
+
 <body>
-    <h1>Planner</h1>
-    <div class="navbar">
-        <a href="/">Home</a>
-        <div class="dropdown">
-          <a class="dropbtn" href="/planAhead">Plan Ahead</a>
-            <div class="dropdown-content">
-              <a href="/discover">Discover</a>
-              <a href="/planner">Planner</a>
-              <a href="/whatIf">What If</a>
-            </div>
-        </div>
-        <a href="https://paws.gsu.edu" target="_blank">PAWS</a>
-        <a href="#logout">Log Out</a>
+  <header>
+    <div class="title">
+      <img src="/css/inverse.png" alt="logo" width="90" height="50" class="logo">
+      <div class="vertical-line"></div>
+      <h1>Whats Next</h1>
     </div>
-    
-    <h1>Course Planner</h1>
+    <div class="navbar">
+      <a href="/">Home</a>
+      <a href="/discover">Discover</a>
+      <a href="/whatIf">What If</a>
+      <div class="dropdown">
+        <a class="dropbtn" href="/planAhead">Plan Ahead</a>
+        <div class="dropdown-content">
+          <a href="/planner">Whats Next</a>
+          <a href="/planOfStudy">Guided Schedule</a>
+        </div>
+      </div>
+      <a href="https://paws.gsu.edu" target="_blank">PAWS</a>
+    </div>
+  </header>
 
-<!-- Display recommended next courses -->
-<h2 id="recommended-courses" class="<%= recommendations.length === 0 ? 'hide' : '' %>">Recommended Next Courses</h2>
-<ul>
-  <% recommendations.forEach(recommendation => { %>
+  <div class="recommended-courses-section <%= recommendations.length === 0 ? 'hide' : '' %>">
+    <h2 id="recommended-courses">Recommended Next Courses</h2>
+    <p>This curated list represents recommended courses for your upcoming studies. These suggestions are formulated
+      based on your completed coursework and academic schedule.</p>
     <ul>
-      <% recommendation.recommendedCourses.forEach(recommendedCourse => { %>
-        <li><%= recommendedCourse.courseNumber %> - <%= recommendedCourse.creditHours %> credit hours</li>
-      <% }); %>
+      <% recommendations.forEach(recommendation=> { %>
+        <li>
+          <% recommendation.recommendedCourses.forEach(recommendedCourse=> { %>
+            <div>
+              <%= recommendedCourse.courseNumber %> - <%= recommendedCourse.creditHours %> credit hours
+            </div>
+            <% }); %>
+        </li>
+        <% }); %>
     </ul>
-  <% }); %>
-</ul>
+  </div>
 
-<form method="post" action="/planner">
-  <h2 class="<%= coursesNotTaken.length === 0 ? 'hide' : '' %>">Select Courses for Next Semester</h2>
-  <ul class="<%= coursesNotTaken.length === 0 ? 'hide' : '' %>">
-    <% coursesNotTaken.forEach(course => { %>
-      <li>
-        <input type="checkbox" name="selectedCourses" value="<%= course._id %>">
-        <%= course.courseNumber %> - <%= course.creditHours %> credit hours
-      </li>
-    <% }); %>
-  </ul>
-  <input type="hidden" name="currentCourses" value="<%= JSON.stringify([]) %>">
-  <button type="submit" class="<%= coursesNotTaken.length === 0 ? 'hide' : '' %>">Add Selected Courses to Your Plan</button>
-</form>
+  <hr>
 
-<h2 class="<%= currentCourses.length === 0 ? 'hide' : '' %>">Your Plan</h2>
-<ul>
-  <% currentCourses.forEach(course => { %>
-    <li><%= course.courseNumber %> - <%= course.creditHours %> credit hours</li>
-  <% }); %>
-</ul>
-    
-      
-    <!-- Your server.js script should be included separately -->
-    <script src="server.js"></script>
+  <div class="course-selection-section <%= recommendations.length === 0 ? 'hide' : '' %>">
+    <h2>Select Courses for Next Semester</h2>
+    <p>Please choose the courses you wish to include in your planner for the upcoming semester. Consider including the
+      recommended courses above in your selection.</p>
+    <form method="post" action="/planner">
+      <ul>
+        <% coursesNotTaken.forEach(course=> { %>
+          <li>
+            <input type="checkbox" name="selectedCourses" value="<%= course._id %>">
+            <%= course.courseNumber %> - <%= course.creditHours %> credit hours
+          </li>
+          <% }); %>
+      </ul>
+      <input type="hidden" name="currentCourses" value="<%= JSON.stringify([]) %>">
+      <button type="submit" class="submit-button">Add Selected Courses to Your Plan</button>
+    </form>
+  </div>
+
+  <div class="your-plan-section <%= currentCourses.length === 0 ? 'hide' : '' %>">
+    <h2>Your Plan</h2>
+    <p>Here is your plan for the upcoming semester. Remember to register for these courses on PAWS and consult with your
+      advisor.</p>
+    <ul>
+      <% currentCourses.forEach(course=> { %>
+        <li>
+          <%= course.courseNumber %> - <%= course.creditHours %> credit hours
+        </li>
+        <% }); %>
+    </ul>
+  </div>
+
+  <script src="server.js"></script>
 </body>
+
 </html>

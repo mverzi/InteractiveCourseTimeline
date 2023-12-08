@@ -1,67 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE-edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="/css/style.css">
-
-    <title>Home</title>
+    <link rel="icon" href="/css/favicon.ico" type="image/x-icon" sizes="16x16">
+    <title>Discover</title>
 </head>
-<body>
-    <h1>Discover</h1>
-    <div class="navbar">
-        <a href="/">Home</a>
-        <div class="dropdown">
-            <a class="dropbtn" href="/planAhead">Plan Ahead</a>
-            <div class="dropdown-content">
-                <a href="/discover">Discover</a>
-                <a href="/planner">Planner</a>
-                <a href="/whatIf">What If</a>
-            </div>
-        </div>
-        <a href="https://paws.gsu.edu" target="_blank">PAWS</a>
-        <a href="#logout">Log Out</a>
-    </div>
 
-    <input id="search-input" type="text" placeholder = "Search...">
-  
+<body>
+    <header>
+        <div class="title">
+            <img src="/css/inverse.png" alt="logo" width="90" height="50" class="logo">
+            <div class="vertical-line"></div>
+            <h1>Discover</h1>
+        </div>
+        <div class="navbar">
+            <a href="/">Home</a>
+            <a href="/discover">Discover</a>
+            <a href="/whatIf">What If</a>
+            <div class="dropdown">
+                <a class="dropbtn" href="/planAhead">Plan Ahead</a>
+                <div class="dropdown-content">
+                    <a href="/planner">Whats Next</a>
+                    <a href="/planOfStudy">Guided Schedule</a>
+                </div>
+            </div>
+            <a href="https://paws.gsu.edu" target="_blank">PAWS</a>
+        </div>
+    </header>
+
+    <p style="text-align: center;">Search for courses avaiable and discover the many classes available at GSU!</p>
+
+    <input id="search-input" type="text" placeholder="Search...">
+
     <ul style="list-style-type: none;">
-      <% if (Array.isArray(results) && results.length > 0) { %>
-          <% results.forEach(item => { %>
-              <li><%= item.courseNumber %> - <%= item.courseTitle %>
-                  <ul>
-                      <li>Course Description: <%= item.courseDescription %></li>
-                      <li>Credit Hours: <%= item.creditHours %></li>
-                      <% if (item.prerequisites && item.prerequisites.length > 0) { %>
-                        <li>Prerequisites:
+        <% if (Array.isArray(results) && results.length> 0) { %>
+            <% results.forEach(item=> { %>
+                <li>
+                    <%= item.courseNumber %> - <%= item.courseTitle %>
                             <ul>
-                                <% item.prerequisites.forEach(prerequisite => { %>
-                                    <li><%= prerequisite %></li>
-                                <% }); %>
+                                <li>Course Description: <%= item.courseDescription %>
+                                </li>
+                                <li>Credit Hours: <%= item.creditHours %>
+                                </li>
+                                <% if (item.prerequisites && item.prerequisites.length> 0) { %>
+                                    <li>Prerequisites:
+                                        <ul>
+                                            <% item.prerequisites.forEach(prerequisite=> { %>
+                                                <li>
+                                                    <%= prerequisite %>
+                                                </li>
+                                                <% }); %>
+                                        </ul>
+                                    </li>
+                                    <% } %>
                             </ul>
-                        </li>
-                    <% } %>
-                  </ul>
-              </li>
-          <% }) %>
-      <% } else { %>
-          <li>No results found</li>
-      <% } %>
-  </ul>
-  
+                </li>
+                <% }) %>
+                    <% } else { %>
+                        <li>No results found</li>
+                        <% } %>
+    </ul>
+
     <script>
         const searchInput = document.getElementById("search-input");
         const resultList = document.querySelector("ul");
-            
-        searchInput.addEventListener("input", function() {
+
+        searchInput.addEventListener("input", function () {
             // Fetching results from server
             fetch(`/api/search?q=${searchInput.value}`)
                 .then(response => response.json())
                 .then(data => {
                     // Clear the current list
                     resultList.innerHTML = "";
-                
+
                     // If there are results, append them; otherwise, show 'No results found'
                     if (data.length) {
                         data.forEach(item => {
@@ -83,6 +98,7 @@
                 .catch(error => console.error("Error fetching data:", error));
         });
 
-      </script>
+    </script>
 </body>
+
 </html>

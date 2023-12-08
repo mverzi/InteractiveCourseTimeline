@@ -9,12 +9,11 @@ let dbConnectionStr = process.env.DB_STRING;
 let classesCollection;
 let student1Collection;
 let db;
-let selectedStudent = '04212';
+let selectedStudent = '10289';
 
 app.set('view engine', 'ejs');
 
-// Connect to the MongoDB database at the start
-// Connect to the MongoDB database at the start
+//DATA BASE CONNECTION 
 MongoClient.connect(dbConnectionStr, { useUnifiedTopology: true })
   .then(client => {
     console.log(`Connected to Database`);
@@ -91,15 +90,32 @@ async function calculateProgress(studentId) {
   }
 }
 
+async function getUserFirstName(studentId) {
+  try {
+    const student = await student1Collection.findOne({ studentId });
+
+    // Check if the student exists and has a first name
+    if (student && student.name) {
+      return student.name;
+    } else {
+      return null; // Return null if the student or their first name is not found
+    }
+  } catch (error) {
+    // Handle errors here
+    console.error('Error retrieving student name:', error.message);
+    return null;
+  }
+}
+
 // HOME PAGE
 app.get('/', async (req, res) => {
   try {
     // Fetch the progress and currentCourses for the selected student
     const progress = await calculateProgress(selectedStudent);
     const currentCourses = await fetchCurrentCourses();
-
+    const firstName = await getUserFirstName(selectedStudent);
     if (progress !== null) {
-      res.render('index', { progress, currentCourses });
+      res.render('index', { progress, currentCourses,firstName });
     } else {
       res.status(404).send('Student not found or data not available');
     }
@@ -144,7 +160,11 @@ app.get('/planAhead', async (req, res) => {
       return;
     }
 
-    const allClasses = await classesCollection.find().toArray();
+    const allClasses = await classesCollection.aggregate([
+      {
+        $match: { coreCourse: true }
+      }
+    ]).toArray();
     const studentCoursesTaken = student[0].coursesTaken;
     const studentCurrentCourses = student[0].currentCourses;
 
@@ -200,7 +220,7 @@ app.get('/planner', async (req, res) => {
             const met = student.currentCourses.includes(prereq) || student.coursesTaken.includes(prereq);
             return met;
           });
-          return prerequisitesMet;
+          return prerequisitesMet && course.coreCourse;
         }
         return false;
       });
@@ -288,7 +308,6 @@ app.post('/planner', async (req, res) => {
 });
 
 // DISCOVER PAGE
-
 async function getPrerequisiteCourseNumbers(prerequisiteIds) {
   if (!prerequisiteIds || prerequisiteIds.length === 0) {
     return [];
@@ -336,8 +355,7 @@ app.get('/discover', async (req, res) => {
   res.render('discover', { results });
 });
 
-// WHAT IF PAGE CODE HERE
-
+// WHAT IF PAGE 
 app.get('/whatIf', async (req, res) => {
   try {
     // Initialize the variables to empty objects
@@ -473,7 +491,7 @@ app.post('/whatIf', async (req, res) => {
       if (completedCourseIds.includes(selectedConcentrationInfo.requiredCourse._id)) {
         selectedConcentrationInfo.remainingCourse = false;
       }
-      else{
+      else {
         selectedConcentrationInfo.remainingCourse = true;
       }
 
@@ -491,6 +509,125 @@ app.post('/whatIf', async (req, res) => {
   }
 });
 
+//PLAN OF STUDY PAGE
+async function fetchCurrentAndCompletedCourses(selectedStudent) {
+  try {
+    // Check if a student is selected
+    if (!selectedStudent) {
+      return [];
+    }
+
+    // Fetch the student's data based on their studentId
+    const student = await student1Collection.findOne({ studentId: selectedStudent });
+
+    if (student) {
+      const currentCourseIds = student.currentCourses || [];
+      const completedCourseIds = student.coursesTaken || [];
+
+      // Fetch current and completed courses
+      const currentCourses = await classesCollection
+        .find({ _id: { $in: currentCourseIds.concat(completedCourseIds) } })
+        .toArray();
+
+      return currentCourses.map(course => course.courseNumber);
+    } else {
+      return [];
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+function recommendCourseProgression(allCourses, completedCourses) {
+  const courseProgression = [];
+  const semesters = ['Fall 2023', 'Spring 2024', 'Fall 2024', 'Spring 2025', 'Fall 2025', 'Spring 2026', 'Fall 2026', 'Spring 2027'];
+  let currentSemester = 0; // Index to keep track of the current semester
+
+  while (currentSemester < semesters.length) {
+    const semester = semesters[currentSemester];
+    let availableCourses = allCourses.filter(course => {
+      // Filter out completed courses
+      if (completedCourses.includes(course._id)) {
+        return false;
+      }
+
+      if (course.coreCourse === false) {
+        return false;
+      }
+
+      // Filter out courses with unmet prerequisites
+      if (course.prerequisites) {
+        if (course.prerequisites.some(prereq => !completedCourses.includes(prereq))) {
+          return false;
+        }
+      }
+
+      // Prioritize courses that are in the nextCourses of completed courses
+      if (course.nextCourses) {
+        if (course.nextCourses.some(nextCourse => completedCourses.includes(nextCourse))) {
+          return true;
+        }
+      }
+
+      // Include other courses
+      return true;
+    });
+
+    // Handle alternatives
+    const selectedCourses = [];
+    const alternativeSet = new Set();
+
+    availableCourses = availableCourses.filter(course => {
+      const alternativeId = course.alternativeTo;
+
+      if (alternativeId) {
+        // Skip alternative course if the primary course or another alternative has been selected
+        if (completedCourses.includes(course._id) || alternativeSet.has(alternativeId)) {
+          return false;
+        }
+
+        // Mark the alternative as selected
+        alternativeSet.add(alternativeId);
+      }
+
+      // Include other courses
+      return true;
+    });
+
+
+    let totalCreditHours = 0;
+
+    for (const course of availableCourses) {
+      if (totalCreditHours + course.creditHours <= 12) {
+        // Add the course to this semester
+        totalCreditHours += course.creditHours;
+        selectedCourses.push(course);
+        completedCourses.push(course._id);
+      }
+    }
+
+    // Add the semester and its courses to courseProgression
+    courseProgression.push({ semester, courses: selectedCourses });
+
+    // Move on to the next semester
+    currentSemester++;
+  }
+
+  return courseProgression;
+}
+
+app.get('/planOfStudy', async (req, res) => {
+  try {
+    const allCourses = await fetchAllCourses();
+    const currentAndCompletedCourses = await fetchCurrentAndCompletedCourses(selectedStudent);
+    const courseProgression = recommendCourseProgression(allCourses, currentAndCompletedCourses);
+
+    res.render('planOfStudy', { courseProgression });
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 app.listen(process.env.PORT || PORT, () => {
   console.log(`Server running on port ${PORT}`);
